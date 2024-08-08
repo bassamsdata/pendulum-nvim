@@ -47,25 +47,28 @@ local function ensure_job()
         return
     end
 
-    chan = vim.system({ bin_path }, {
-        -- Handle stdout and stderr
-        stdout = function(_, data)
-            if data and data ~= "" then
-                print("stdout: " .. data)
-            end
-        end,
-        stderr = function(_, data)
-            if data and data ~= "" then
-                print("stderr: " .. data)
-            end
-        end,
-        on_exit = function(out)
-            if out.code ~= 0 then
-                print("Error: Pendulum job exited with code " .. out.code)
+    chan = vim.fn.jobstart({ bin_path }, {
+        rpc = true,
+        onexit = function(_, code, _)
+            if code ~= 0 then
+                print("Error: Pendulum job exited with code " .. code)
                 chan = nil
             end
         end,
-        text = true,
+        onstderr = function(_, data, _)
+            for _, line in ipairs(data) do
+                if line ~= "" then
+                    print("stderr: " .. line)
+                end
+            end
+        end,
+        onstdout = function(_, data, _)
+            for _, line in ipairs(data) do
+                if line ~= "" then
+                    print("stdout: " .. line)
+                end
+            end
+        end,
     })
 
     if not chan or chan == 0 then
