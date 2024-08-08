@@ -18,10 +18,8 @@ function M.setup(opts)
     opts = vim.tbl_deep_extend("force", default_opts, opts or {})
     handlers.setup(opts)
 
-    print("gen_reports:", opts.gen_reports)
     if opts.gen_reports then
         remote.setup(opts)
-        print("remote.setup called")
     end
 end
 
