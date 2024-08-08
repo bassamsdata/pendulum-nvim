@@ -18,7 +18,7 @@ local function git_project()
     -- TODO: possibly change cwd to file path (to capture its git project while in a different working directory)
     local project_name = vim.system(
         { "git", "config", "--local", "remote.origin.url" },
-        { text = true, cwd = vim.loop.cwd() }
+        { text = true, cwd = (vim.uv or vim.loop).cwd() }
     )
         :wait().stdout
 
@@ -35,7 +35,7 @@ local function git_branch()
     -- TODO: possibly change cwd to file path (to capture its git project while in a different working directory)
     local branch_name = vim.system(
         { "git", "branch", "--show-current" },
-        { text = true, cwd = vim.loop.cwd() }
+        { text = true, cwd = (vim.uv or vim.loop).cwd() }
     )
         :wait().stdout
 
@@ -66,7 +66,7 @@ local function log_activity(is_active, opts, active_time)
         -- TODO: file path - filename -> handoff to git to get file names
         -- - change cwd to file path without filename
         filetype = ft,
-        cwd = vim.loop.cwd(),
+        cwd = (vim.uv or vim.loop).cwd(),
         project = git_project(),
         branch = git_branch(),
     }
@@ -118,11 +118,12 @@ function M.setup(opts)
     })
 
     -- logging timer
-    vim.fn.timer_start(opts.timer_len * 1000, function()
+    local timer = (vim.uv or vim.loop).new_timer()
+    timer:start(opts.timer_len * 1000, opts.timer_len * 1000, function()
         vim.schedule(function()
             check_active_status(opts)
         end)
-    end, { ["repeat"] = -1 })
+    end)
 end
 
 return M
