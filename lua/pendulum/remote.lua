@@ -18,7 +18,9 @@ function M.setup(opts)
     -- Check if Go binary exists
     local uv = vim.uv or vim.loop
     uv.fs_stat(bin_path, function(stat)
+        vim.notify(stat, vim.log.levels.INFO)
         if stat then
+            print("Pendulum binary exists at " .. bin_path)
             return
         end
         -- Compile binary if it doesn't exist
@@ -34,7 +36,10 @@ function M.setup(opts)
                 if result.code == 0 then
                     print("Go binary compiled successfully.")
                 else
-                    print("Failed to compile Go binary. " .. uv.cwd())
+                    print(
+                        "Failed to compile Go binary. Exit code: "
+                            .. result.code
+                    )
                 end
             end
         )
