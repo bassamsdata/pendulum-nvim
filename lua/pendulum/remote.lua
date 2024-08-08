@@ -17,13 +17,8 @@ function M.setup(opts)
 
     -- Check if Go binary exists
     local uv = vim.uv or vim.loop
-    uv.fs_stat(bin_path, function(stat)
-        vim.notify(stat, vim.log.levels.INFO)
-        if stat then
-            print("Pendulum binary exists at " .. bin_path)
-            return
-        end
-        -- Compile binary if it doesn't exist
+    local state = uv.fs_stat(bin_path)
+    if not state then
         print(
             "Pendulum binary not found at "
                 .. bin_path
@@ -43,7 +38,7 @@ function M.setup(opts)
                 end
             end
         )
-    end)
+    end
 end
 
 local function ensure_job()
